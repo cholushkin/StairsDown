@@ -9,8 +9,11 @@ namespace TowerGenerator
 
         public void FitView(GameObject current)
         {
-            CamSizeFitter1.DoFit(current);
-            CamSizeFitter2.DoFit(current);
+            CamSizeFitter1.ObjectToFit = current;
+            CamSizeFitter1.DoFit();
+
+            CamSizeFitter2.ObjectToFit = current;
+            CamSizeFitter2.DoFit();
         }
     }
 }

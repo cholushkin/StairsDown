@@ -14,14 +14,13 @@ namespace TowerGenerator
         }
 
 
-        public static GameObject CreateChunkRnd(MetaBase meta, IPseudoRandomNumberGeneratorState seed, Transform parent, Vector3 position)
+        public static GameObject CreateChunkRnd(MetaBase meta, IPseudoRandomNumberGeneratorState seed)
         {
             var visSegPrefab = (GameObject)Resources.Load("Chunks/" + meta.ChunkName);
             visSegPrefab.SetActive(false);
             var visSegment = Object.Instantiate(visSegPrefab);
             visSegment.name = visSegPrefab.name;
             
-            visSegment.transform.SetParent(parent,false);
             visSegment.transform.localPosition = Vector3.zero;
 
             // rotation 

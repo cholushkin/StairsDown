@@ -13,6 +13,4 @@ public class CardProvider : MonoBehaviour
         Assert.IsTrue(MetaProvider.Metas.Length != 0);
         return _rnd.FromEnumerable(MetaProvider.GetMetas());
     }
-
-    
 }

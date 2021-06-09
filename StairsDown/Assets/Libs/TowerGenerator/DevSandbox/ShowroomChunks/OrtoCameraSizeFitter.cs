@@ -9,11 +9,20 @@ namespace TowerGenerator
     {
         public Camera Camera;
         public float Duration;
+        public bool DoJobOnAwake;
+        public GameObject ObjectToFit;
 
-        public void DoFit(GameObject gameObj)
+        void Awake()
         {
-            var bbs = gameObj.BoundBox().size;
-            Camera.DOOrthoSize(bbs.y, Duration);
+            if(DoJobOnAwake)
+                DoFit();
         }
+
+        public void DoFit()
+        {
+            var bbs = ObjectToFit.BoundBox().size;
+            Camera.DOOrthoSize(bbs.y * 0.55f,  Duration);
+        }
+
     }
 }
