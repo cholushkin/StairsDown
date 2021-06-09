@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using GameLib;
 using GameLib.Random;
-using Malee.List;
 using UnityEngine;
 
 namespace TowerGenerator
@@ -17,15 +16,10 @@ namespace TowerGenerator
             public GameObject GeneratorNode;
         }
 
-        [Serializable]
-        public class GeneratorNodesList : ReorderableArray<NodeItem>
-        {
-        }
 
         //public bool ResetOnProcessorEnter;
 
-        [Reorderable]
-        public GeneratorNodesList Nodes;
+        public List<NodeItem> Nodes;
 
         [Tooltip("-1 is infinite")] public int NodeCycles;
         public CyclerType NodesCyclerType;
