@@ -39,26 +39,50 @@ namespace TowerGenerator
 
         public virtual void Init() // configure
         {
-            if(Log.Verbose())
+            if (Log.Verbose())
                 Debug.Log("> Init");
             if (Seed == -1)
                 Seed = Random.Range(0, Int32.MaxValue);
             BuildImpactTree();
         }
 
-        public Bounds CalculateCurrentAABB(bool withMargin = true)
+        // todo: cache bounds for current configuration
+        public Bounds CalculateCurrentAABB(bool withMargin, bool considerDimIgnorantParts)
         {
             Assert.IsNotNull(_impactTree);
+
+            List<Transform> ignore = null;
+            if (considerDimIgnorantParts)
+            {
+                ignore = new List<Transform>(16);
+                transform.ForEachChildrenRecursive(t =>
+                    {
+                        if (t.GetComponent<DimensionsIgnorant>() != null)
+                        {
+                            if (t.gameObject.activeSelf)
+                            {
+                                ignore.Add(t);
+                                t.gameObject.SetActive(false);
+                            }
+                        }
+                    }
+                );
+            }
+
             var bounds = _impactTree.Data.gameObject.BoundBox();
-            if(withMargin)
+            if (withMargin)
                 bounds.Expand(Vector3.one * TowerGeneratorConstants.ChunkMargin * 2f);
+
+            if (considerDimIgnorantParts)
+                foreach (var i in ignore)
+                    i.gameObject.SetActive(true);
             return bounds;
         }
 
         public virtual Bounds CalculateDimensionAABB()
         {
             transform.ForEachChildrenRecursive(t => t.gameObject.SetActive(t.GetComponent<DimensionsIgnorant>() == null));
-            return CalculateCurrentAABB();
+            return CalculateCurrentAABB(true, false);
         }
 
         public void SetConfiguration()
@@ -232,5 +256,24 @@ namespace TowerGenerator
             foreach (var influencedObject in influencedObjects)
                 influencedObject.gameObject.SetActive(false);
         }
+
+
+        //void OnDrawGizmos()
+        //{
+        //    if (_impactTree != null)
+        //    {
+        //        //Gizmos.DrawLine(Vector3.zero, Vector3.zero+Vector3.right*100f);
+        //        var bounds = CalculateCurrentAABB(false);
+        //        Gizmos.DrawWireCube(
+        //            bounds.center,
+        //            bounds.size);
+
+        //        Gizmos.color = Color.red;
+        //        Gizmos.DrawSphere(bounds.center, 0.25f);
+
+        //        Gizmos.color = Color.yellow;
+        //        Gizmos.DrawSphere(transform.position, 0.25f);
+        //    }
+        //}
     }
 }

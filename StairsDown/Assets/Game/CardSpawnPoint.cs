@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class CardSpawnPoint : MonoBehaviour
 {
+    public MetaBase Meta;
+    public long Seed;
     public CardProvider CardProvider;
     public Transform RotPivot;
     private GameObject _current;
@@ -22,7 +24,6 @@ public class CardSpawnPoint : MonoBehaviour
     public void Awake()
     {
         _fitBounds = gameObject.BoundBox();
-        print(_fitBounds.size);
     }
   
 
@@ -35,13 +36,29 @@ public class CardSpawnPoint : MonoBehaviour
         }
     }
 
+    public void Next()
+    {
+        if (_current == null)
+            return;
+
+        _chunkController.transform.DOScale(0.0f, 0.5f).SetEase(Ease.InBack).OnComplete(()=>Destroy(_current.gameObject));
+    }
+
     public void Place(MetaBase metaToPlace, IPseudoRandomNumberGeneratorState seed)
     {
         // remove _current
         Destroy(_current);
 
         // spawn new
-        _current = ChunkFactory.CreateChunkRnd(metaToPlace, seed);
+        _current = ChunkFactory.CreateChunk(metaToPlace, seed.AsNumber());
+
+
+        // assign current card values
+        Seed = seed.AsNumber();
+        Meta = metaToPlace;
+        _rnd.Next();
+
+        
 
         // segment rotation
         var rot = _current.AddComponent<RotatingSegment>();
@@ -57,7 +74,7 @@ public class CardSpawnPoint : MonoBehaviour
 
 
         _chunkController = _current.GetComponent<ChunkControllerBase>();
-        var chunkBounds = _chunkController.CalculateCurrentAABB(true);
+        var chunkBounds = _chunkController.CalculateCurrentAABB(true, false);
         var sx = _fitBounds.size.x / chunkBounds.size.x;
         var sy = _fitBounds.size.y / chunkBounds.size.y;
         var sz = _fitBounds.size.z / chunkBounds.size.z;
@@ -74,8 +91,6 @@ public class CardSpawnPoint : MonoBehaviour
 
         // animation
         _chunkController.transform.DOScale(scale * 0.6f, 1f).SetEase(Ease.OutElastic).From();
-
-
     }
 
     private bool _HasTag(Transform tr)
@@ -87,21 +102,21 @@ public class CardSpawnPoint : MonoBehaviour
         return false;
     }
 
-    void OnDrawGizmos()
-    {
-        if (_current != null)
-        {
-            //Gizmos.DrawLine(Vector3.zero, Vector3.zero+Vector3.right*100f);
-            var bounds = _chunkController.CalculateCurrentAABB(false);
-            Gizmos.DrawWireCube(
-                bounds.center,
-                bounds.size);
+    //void OnDrawGizmos()
+    //{
+    //    if (_current != null)
+    //    {
+    //        //Gizmos.DrawLine(Vector3.zero, Vector3.zero+Vector3.right*100f);
+    //        var bounds = _chunkController.CalculateCurrentAABB(false,true);
+    //        Gizmos.DrawWireCube(
+    //            bounds.center,
+    //            bounds.size);
 
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(bounds.center, 0.25f);
+    //        Gizmos.color = Color.red;
+    //        Gizmos.DrawSphere(bounds.center, 0.25f);
 
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(transform.position, 0.25f);
-        }
-    }
+    //        Gizmos.color = Color.yellow;
+    //        Gizmos.DrawSphere(transform.position, 0.25f);
+    //    }
+    //}
 }

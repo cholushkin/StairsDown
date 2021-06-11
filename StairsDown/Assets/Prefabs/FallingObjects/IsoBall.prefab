@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6972792808652061881}
   - component: {fileID: 3099018978945518481}
   - component: {fileID: 6073233863752669229}
+  - component: {fileID: -1265340867615577159}
   m_Layer: 6
   m_Name: IsoBall
   m_TagString: Untagged
@@ -113,3 +114,15 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 2
+--- !u!114 &-1265340867615577159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6073233863752669202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66b365a069a80c44897681ded23e2f53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

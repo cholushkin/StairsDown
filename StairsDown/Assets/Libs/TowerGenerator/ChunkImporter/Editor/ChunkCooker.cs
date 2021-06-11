@@ -48,7 +48,11 @@ namespace TowerGenerator.ChunkImporter
 
             ExecuteFbxCommands(semifinishedEnt, chunkImportInformation);
 
-            //ApplyMaterials(semifinishedEnt);
+            ApplyColliders(semifinishedEnt);
+
+            ApplyMaterials(semifinishedEnt);
+
+            ApplyScripts(semifinishedEnt);
 
             ConfigureChunkController(semifinishedEnt); // tree
 
@@ -70,14 +74,56 @@ namespace TowerGenerator.ChunkImporter
 
         private static void ApplyMaterials(GameObject chunk)
         {
-            var colorAtlas = AssetDatabase.LoadAssetAtPath<Material>("Assets/Prefabs/ColorSchemes/ColorScheme.mat");
-            Assert.IsNotNull(colorAtlas);
+            var matWall = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Wall.mat");
+            var matConnector = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Connector.mat");
+            Assert.IsNotNull(matWall);
+            Assert.IsNotNull(matConnector);
 
             var renders = chunk.GetComponentsInChildren<Renderer>();
 
             foreach (var render in renders)
             {
-                render.material = colorAtlas;
+                if(render.gameObject.GetComponent<Connector>() != null)
+                    render.material = matConnector;
+                else
+                    render.material = matWall;
+            }
+        }
+
+        private static void ApplyColliders(GameObject semifinishedEnt)
+        {
+            var renders = semifinishedEnt.GetComponentsInChildren<Renderer>();
+
+            foreach (var render in renders)
+            {
+                if (render.gameObject.GetComponent<FallingObjectSpawner>() != null)
+                {
+                    
+                }
+                else
+                {
+                    render.gameObject.AddComponent<MeshCollider>();
+                }
+            }
+        }
+
+        private static void ApplyScripts(GameObject semifinishedEnt)
+        {
+            var stairsController = semifinishedEnt.AddComponent<StairsChunkController>();
+            stairsController.Spawner = semifinishedEnt.GetComponentInChildren<FallingObjectSpawner>(true);
+
+            var renders = semifinishedEnt.GetComponentsInChildren<Renderer>();
+            foreach (var render in renders)
+            {
+                if (render.gameObject.GetComponent<FallingObjectSpawner>() != null)
+                {
+
+                }
+                else
+                {
+                    var propagator = render.gameObject.AddComponent<CollisionPropagator>();
+                    propagator.CollisionHandler = stairsController;
+                }
             }
         }
 

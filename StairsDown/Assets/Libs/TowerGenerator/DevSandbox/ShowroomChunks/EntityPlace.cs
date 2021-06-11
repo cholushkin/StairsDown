@@ -29,7 +29,7 @@ namespace TowerGenerator
             if (_current != null)
             {
                 //Gizmos.DrawLine(Vector3.zero, Vector3.zero+Vector3.right*100f);
-                var bounds = _chunkController.CalculateCurrentAABB();
+                var bounds = _chunkController.CalculateCurrentAABB(true, false);
                 Gizmos.DrawWireCube(
                     bounds.center,
                     bounds.size);

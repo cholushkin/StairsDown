@@ -14,7 +14,7 @@ namespace TowerGenerator
         }
 
 
-        public static GameObject CreateChunkRnd(MetaBase meta, IPseudoRandomNumberGeneratorState seed)
+        public static GameObject CreateChunk(MetaBase meta, long seed)
         {
             var visSegPrefab = (GameObject)Resources.Load("Chunks/" + meta.ChunkName);
             visSegPrefab.SetActive(false);
@@ -27,7 +27,7 @@ namespace TowerGenerator
             visSegment.transform.localRotation = Quaternion.identity* Quaternion.Euler(-90,0,0);
 
             var baseChunkController = visSegment.GetComponent<ChunkControllerBase>();
-            baseChunkController.Seed = seed.AsNumber();
+            baseChunkController.Seed = seed;
             baseChunkController.Init();
             visSegment.SetActive(true);
             baseChunkController.SetConfiguration();
@@ -64,7 +64,7 @@ namespace TowerGenerator
             visSegController.SetConfiguration();
 
             // centering
-            var segBB = visSegController.CalculateCurrentAABB();
+            var segBB = visSegController.CalculateCurrentAABB(true, false);
             var offset = visSegController.transform.position - segBB.center;
             visSegment.transform.position += offset;
             return visSegment;

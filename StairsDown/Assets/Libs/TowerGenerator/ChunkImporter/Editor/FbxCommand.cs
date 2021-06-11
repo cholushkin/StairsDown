@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Assets.Plugins.Alg;
 using TowerGenerator.Components.DynamicGrowSegments;
@@ -576,6 +578,163 @@ namespace TowerGenerator.ChunkImporter
                 importInformation.TagAmount++;
             }
         }
+
+        private class ComponentValue : FbxCommandAddAttribute
+        {
+            private Parameter<string> _componentName;
+            private Parameter<string> _componentPropertyString;
+            public override string GetPayloadCommandName()
+            {
+                return "ComponentValue";
+            }
+
+            public override void ParseParameters(string parameters, GameObject gameObject)
+            {
+                // set defaults parameters first
+                _componentName = new Parameter<string> { Name = "UnityComponentName", Value = "" };
+                _componentPropertyString = new Parameter<string>() { Name = "ComponentPropertyString", Value = "" };
+
+                if (string.IsNullOrWhiteSpace(parameters))
+                    return;
+
+                var actualParams = parameters.Split(new char[] { ',' }, 2);
+                _componentName.Value = actualParams[0].Trim();
+                if (actualParams.Length > 1)
+                    _componentPropertyString.Value = actualParams[1].Trim();
+                else
+                    _componentPropertyString = null;
+
+            }
+
+            public override void Execute(GameObject gameObject, ChunkCooker.ChunkImportInformation importInformation)
+            {
+                var splitedComponentStrings = _componentName.Value.Split(new char[] { '[', ']' });
+                Assert.IsTrue(splitedComponentStrings.Length == 3);
+
+                var componentName = splitedComponentStrings[0];
+                var componentIndex = Convert.ToInt32(splitedComponentStrings[1]);
+                Type compType = GetType(componentName);
+
+                var components = gameObject.GetComponents(compType);
+                if (components == null || components.Length <= componentIndex)
+                {
+                    gameObject.AddComponent(compType);
+                    components = gameObject.GetComponents(compType);
+                }
+
+                var comp = components[componentIndex];
+
+                if (_componentPropertyString != null)
+                {
+                    var valueStrings = _componentPropertyString.Value.Split('=');
+                    var parameterName = valueStrings[0];
+                    var parameterValue = valueStrings[1];
+                    var fieldInfo = compType.GetField(parameterName,
+                        System.Reflection.BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                    var fType = fieldInfo.FieldType;
+
+
+                    object fieldValue;
+                    try
+                    {
+                        TypeConverter typeConverter = TypeDescriptor.GetConverter(fieldInfo.FieldType);
+                        fieldValue = typeConverter.ConvertFromInvariantString(parameterValue);
+                    }
+                    catch (Exception)
+                    {
+                        fieldValue = _implicitConvert(parameterValue, fType);
+                    }
+
+
+                    fieldInfo.SetValue(comp, fieldValue);
+                }
+            }
+
+            // custom types convertors
+
+            object _implicitConvert(string valueString, Type type)
+            {
+                if (type == typeof(Vector3))
+                    return StringToVector3(valueString);
+                throw new NotImplementedException($"{valueString} has no converter");
+            }
+
+            object StringToVector3(string v3String)
+            {
+                // Remove the parentheses
+                if (v3String.StartsWith("(") && v3String.EndsWith(")"))
+                {
+                    v3String = v3String.Substring(1, v3String.Length - 2);
+                }
+
+                // split the items
+                string[] sArray = v3String.Split(',');
+
+                // store as a Vector3
+                Vector3 result = new Vector3(
+                    float.Parse(sArray[0]),
+                    float.Parse(sArray[1]),
+                    float.Parse(sArray[2]));
+
+                return result;
+            }
+
+
+
+            public static Type GetType(string TypeName)
+            {
+
+                // Try Type.GetType() first. This will work with types defined
+                // by the Mono runtime, in the same assembly as the caller, etc.
+                var type = Type.GetType(TypeName);
+
+                // If it worked, then we're done here
+                if (type != null)
+                    return type;
+
+                // If the TypeName is a full name, then we can try loading the defining assembly directly
+                if (TypeName.Contains("."))
+                {
+
+                    // Get the name of the assembly (Assumption is that we are using 
+                    // fully-qualified type names)
+                    var assemblyName = TypeName.Substring(0, TypeName.IndexOf('.'));
+
+                    // Attempt to load the indicated Assembly
+                    var assembly = Assembly.Load(assemblyName);
+                    if (assembly == null)
+                        return null;
+
+                    // Ask that assembly to return the proper Type
+                    type = assembly.GetType(TypeName);
+                    if (type != null)
+                        return type;
+
+                }
+
+                // If we still haven't found the proper type, we can enumerate all of the 
+                // loaded assemblies and see if any of them define the type
+                var currentAssembly = Assembly.GetExecutingAssembly();
+                var referencedAssemblies = currentAssembly.GetReferencedAssemblies();
+                foreach (var assemblyName in referencedAssemblies)
+                {
+
+                    // Load the referenced assembly
+                    var assembly = Assembly.Load(assemblyName);
+                    if (assembly != null)
+                    {
+                        // See if that assembly defines the named type
+                        type = assembly.GetType(TypeName);
+                        if (type != null)
+                            return type;
+                    }
+                }
+
+                // The type just couldn't be found...
+                return null;
+
+            }
+        }
         #endregion
 
 
@@ -604,6 +763,7 @@ namespace TowerGenerator.ChunkImporter
             new Generation(),
             new ShapeConfiguration(), 
             new DynamicGrowSegmentAttribute(), 
+            new ComponentValue(), 
         };
 
         public static void Execute(FbxProps fromFbxProps, GameObject gameObject, ChunkCooker.ChunkImportInformation chunkImportInformation)

@@ -22,7 +22,7 @@ namespace TowerGenerator
             Assert.IsNotNull(DimensionStack);
             transform.ForEachChildrenRecursive(t => t.gameObject.SetActive(t.GetComponent<DimensionsIgnorant>() == null));
             DimensionStack.DoChoice(DimensionIndex);
-            return CalculateCurrentAABB();
+            return CalculateCurrentAABB(true, false);
         }
 
         public override void ProcessGroupSetConfiguration(Group group, IPseudoRandomNumberGenerator rnd)
@@ -38,7 +38,7 @@ namespace TowerGenerator
         public override Connector[] GetConnectors()
         {
             Assert.IsNotNull(DimensionStack);
-            var aabb = CalculateCurrentAABB(false);
+            var aabb = CalculateCurrentAABB(false, false);
 
             // todo: remove all connectors (including children)
             Assert.IsTrue(TopologyType != TopologyType.Undefined);
