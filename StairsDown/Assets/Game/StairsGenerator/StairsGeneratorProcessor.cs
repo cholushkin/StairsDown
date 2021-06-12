@@ -9,33 +9,34 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
     public CardProvider Cards;
     public ChunkControllerBase CurrentChunk;
     public Transform FocusPoint;
-    private int _spawnedChunks;
+    public  int SpawnedChunksCount { get; private set; }
 
     protected override void Awake()
     {
         base.Awake();
-        _spawnedChunks = 0;
+        SpawnedChunksCount = 0;
     }
 
 
     void Update()
     {
         CardSpawnPoint curCard = null;
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Q))
             curCard = Cards.GetCard(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.W))
             curCard = Cards.GetCard(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.A))
             curCard = Cards.GetCard(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.S))
             curCard = Cards.GetCard(3);
 
         // first ever stairs chunk
-        if (_spawnedChunks == 0 ) 
+        if (SpawnedChunksCount == 0 ) 
         {
             var newChunkObj = ChunkFactory.CreateChunk(Cards.GetRandomMeta(),0);
             CurrentChunk = newChunkObj.GetComponent<ChunkControllerBase>();
             SetPosition(CurrentChunk, Vector3.zero);
+            CurrentChunk.transform.SetParent(transform);
 
             // disable entry connector
             var connectors = CurrentChunk.GetConnectors();
@@ -45,11 +46,10 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
             CurrentChunk.ExitConnector = sorted.First();
 
             // make sure spawner is activated
-            // todo: remove hack
+            CurrentChunk.GetComponent<StairsChunkController>().EnableSpawnerGroup(true);
             var spawner =  CurrentChunk.GetComponentInChildren<FallingObjectSpawner>();
-            spawner.gameObject.SetActive(true);
-            spawner.StartSpawning();
-            _spawnedChunks++;
+            spawner.StartSpawning();                                                        
+            SpawnedChunksCount++;
         }
 
 
@@ -61,6 +61,10 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
 
             var currentBounds = CurrentChunk.CalculateCurrentAABB(false, true);
             var newBounds = newChunk.GetComponent<ChunkControllerBase>().CalculateCurrentAABB(false, true);
+
+            // spawner
+            newChunk.GetComponent<StairsChunkController>().EnableSpawnerGroup(curCard.Spawner);
+
 
             newChunk.name = curCard.Meta.ChunkName;
             SetPosition(newChunk, currentBounds.center);
@@ -99,7 +103,7 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
 
             CurrentChunk = newChunk;
             curCard.Next();
-            _spawnedChunks++;
+            SpawnedChunksCount++;
             curCard = null;
             AimGadgetController.Instance.Hide();
         }

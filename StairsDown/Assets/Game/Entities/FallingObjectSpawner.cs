@@ -17,7 +17,7 @@ public class FallingObjectSpawner : MonoBehaviour
     {
         WorkOnStart = false;
         PerSpawnDelay = new Range(0.1f, 0.4f);
-        Scale = new Range(1f, 1.5f);
+        Scale = new Range(1f * 0.5f, 1.5f * 0.5f) ;
     }
 
     void Start()
@@ -30,7 +30,9 @@ public class FallingObjectSpawner : MonoBehaviour
 
     public void StartSpawning()
     {
-        CurrentSpawner?.StopSpawning();
+        if(CurrentSpawner != null)
+            CurrentSpawner.StopSpawning();
+        // CurrentSpawner?.StopSpawning();
         CurrentSpawner = this;
         _rnd = RandomHelper.CreateRandomNumberGenerator();
         StartCoroutine(SpawningCoroutine());

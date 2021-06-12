@@ -10,6 +10,7 @@ public class CardSpawnPoint : MonoBehaviour
 {
     public MetaBase Meta;
     public long Seed;
+    public bool Spawner;
     public CardProvider CardProvider;
     public Transform RotPivot;
     private GameObject _current;
@@ -67,7 +68,13 @@ public class CardSpawnPoint : MonoBehaviour
         rot.LoopDuration = 4;
         rot.StartRotating();
         rot.InitialAngle = new Vector3(-90,0,30);
-        
+
+
+        // spawner
+        var v = Random.value;
+        Spawner = v < Difficulty.Instance.SpawnerChance;
+        print(v);
+        _current.GetComponent<StairsChunkController>().EnableSpawnerGroup(Spawner);
 
         // disable stand
         _current.transform.ForEachChildrenRecursiveTo(_HasTag);
