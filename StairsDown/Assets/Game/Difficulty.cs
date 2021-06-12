@@ -17,7 +17,7 @@ public class Difficulty : Singleton<Difficulty>
     // aim gadget diversity 
     public void Decrease()
     {
-        SpawnerChance -= 0.01f / 5f; // 1 percent per 5 conquers
+        SpawnerChance -= 0.01f / 3f; // 1 percent per 5 conquers
         SpawnerChance = Mathf.Clamp(SpawnerChance, 0.1f, 1f);
     }
 }

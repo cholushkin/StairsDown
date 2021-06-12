@@ -73,7 +73,6 @@ public class CardSpawnPoint : MonoBehaviour
         // spawner
         var v = Random.value;
         Spawner = v < Difficulty.Instance.SpawnerChance;
-        print(v);
         _current.GetComponent<StairsChunkController>().EnableSpawnerGroup(Spawner);
 
         // disable stand
