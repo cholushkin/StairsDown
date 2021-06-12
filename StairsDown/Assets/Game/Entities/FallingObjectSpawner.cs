@@ -48,6 +48,8 @@ public class FallingObjectSpawner : MonoBehaviour
                 _rnd.Range(0f, 360f)
             ));
 
+            gObj.transform.SetParent(FallingObjectsHolder.Instance.transform, true);
+
             gObj.transform.localScale *= _rnd.FromRange(Scale);
         }
     }

@@ -30,9 +30,8 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
         else if (Input.GetKeyDown(KeyCode.Alpha4))
             curCard = Cards.GetCard(3);
 
-
         // first ever stairs chunk
-        if (_spawnedChunks == 0) 
+        if (_spawnedChunks == 0 ) 
         {
             var newChunkObj = ChunkFactory.CreateChunk(Cards.GetRandomMeta(),0);
             CurrentChunk = newChunkObj.GetComponent<ChunkControllerBase>();
@@ -40,9 +39,10 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
 
             // disable entry connector
             var connectors = CurrentChunk.GetConnectors();
-            var entryConnector = connectors
-                .OrderBy(c => c.transform.position.x).Last();
+            var sorted = connectors.OrderBy(c => c.transform.position.x).ToList();
+            var entryConnector = sorted.Last();
             entryConnector.gameObject.SetActive(false);
+            CurrentChunk.ExitConnector = sorted.First();
 
             // make sure spawner is activated
             // todo: remove hack
@@ -53,7 +53,7 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
         }
 
 
-        if (curCard != null)
+        if (curCard != null && AimGadgetController.Instance.StatusActive)
         {
             // spawn a new chunk
             var newChunkObj = ChunkFactory.CreateChunk(curCard.Meta, curCard.Seed);
@@ -71,26 +71,37 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
             // vertical and horiz connection fit
             {
                 var connectors = CurrentChunk.GetConnectors();
-                var closestConnector = connectors
+                var exitConnector = connectors
                     .OrderBy(c => c.transform.position.x).First();
 
                 var newConnectors = newChunk.GetConnectors();
                 var newConnectorsSorted = newConnectors
                     .OrderBy(c => -c.transform.position.x).ToList();
-                var closestNewConnector = newConnectorsSorted.First();
-                var farestNewConnector = newConnectorsSorted.Last();
+                var entryNewConnector = newConnectorsSorted.First();
+                var exitNewConnector = newConnectorsSorted.Last();
 
-                CameraGameplay.Instance.Focus(farestNewConnector.transform);
+                newChunk.ExitConnector = exitNewConnector;
 
-                var verticalDelta = closestConnector.transform.position.y - closestNewConnector.transform.position.y;
-                var horizontalDelta = closestConnector.transform.position.z - closestNewConnector.transform.position.z;
+                CameraGameplay.Instance.Focus(exitNewConnector.transform);
+
+                var verticalDelta = exitConnector.transform.position.y - entryNewConnector.transform.position.y;
+                var horizontalDelta = exitConnector.transform.position.z - entryNewConnector.transform.position.z;
                 newChunk.transform.position += new Vector3(0, verticalDelta, horizontalDelta);
             }
+
+            // aiming
+            newChunk.transform.position += AimGadgetController.Instance.GetOffset();
+            var z = AimGadgetController.Instance.GetRotation();
+            print(z);
+            newChunk.transform.rotation = Quaternion.Euler(-90- z, 0, 0);
+
+
 
             CurrentChunk = newChunk;
             curCard.Next();
             _spawnedChunks++;
             curCard = null;
+            AimGadgetController.Instance.Hide();
         }
     }
 

@@ -1,6 +1,10 @@
 using DG.Tweening;
 using UnityEngine;
 
+
+
+// todo: scale
+
 public class AimGadgetView : MonoBehaviour
 {
     public Transform Axis;
@@ -36,19 +40,21 @@ public class AimGadgetView : MonoBehaviour
     public void PlayAppearAnimation()
     {
         Reset();
-        float duration = 0.2f;
-        VerticalAlongPath.DOScale(0f, duration).From().SetEase(Ease.OutCubic);
-        VerticalPerpendicularPath.DOScale(0f, duration).From().SetEase(Ease.OutCubic);
-        Horizontal.DOScale(0f, duration).From().SetEase(Ease.OutCubic);
+        float duration = 0.5f;
+        transform.DOScale(Vector3.one, duration);
+        //VerticalAlongPath.DOScale(0f, duration).From().SetEase(Ease.OutCubic);
+        //VerticalPerpendicularPath.DOScale(0f, duration).From().SetEase(Ease.OutCubic);
+        //Horizontal.DOScale(0f, duration).From().SetEase(Ease.OutCubic);
     }
 
     public void PlayDisappearAnimation()
     {
         Reset();
         float duration = 0.2f;
-        VerticalAlongPath.DOScale(0f, duration).SetEase(Ease.OutCubic);
-        VerticalPerpendicularPath.DOScale(0f, duration).SetEase(Ease.OutCubic);
-        Horizontal.DOScale(0f, duration).SetEase(Ease.OutCubic);
+        transform.DOScale(Vector3.zero, duration);
+        //VerticalAlongPath.DOScale(0f, duration).SetEase(Ease.OutCubic);
+        //VerticalPerpendicularPath.DOScale(0f, duration).SetEase(Ease.OutCubic);
+        //Horizontal.DOScale(0f, duration).SetEase(Ease.OutCubic);
     }
 
     [ContextMenu("MoveAxisAlongPath")]
@@ -60,28 +66,46 @@ public class AimGadgetView : MonoBehaviour
     [ContextMenu("ConnectorMoveForward")]
     public void ConnectorMoveForward()
     {
-        Connector.DOLocalMove(Vector3.forward * Aspect * 0.5f, ConnecortMoveForwardDuration).SetLoops(-1, LoopType.Yoyo).SetEase(ConnectorMoveForwardEase);
+        Connector.DOKill();
+        Connector.localPosition = Vector3.zero;
+        Connector.DOLocalMove(Vector3.forward * Aspect * 0.5f, ConnecortMoveForwardDuration)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(ConnectorMoveForwardEase)
+            .Goto(ConnecortMoveForwardDuration * Random.value, true);
     }
 
     [ContextMenu("ConnectorRoll")]
     public void ConnectorRoll()
     {
+        Connector.DOKill();
+        Connector.localPosition = Vector3.zero;
         Connector.localRotation = Quaternion.Euler(0, 0, 90 - ConnectorRollAmplitude * 0.5f);
-        Connector.DOLocalRotateQuaternion(Quaternion.Euler(0, 0, 90 + ConnectorRollAmplitude * 0.5f), ConnectorRollDuration).SetLoops(-1, LoopType.Yoyo).SetEase(ConnectorRollEase);
+        Connector.DOLocalRotateQuaternion(Quaternion.Euler(0, 0, 90 + ConnectorRollAmplitude * 0.5f), ConnectorRollDuration)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(ConnectorRollEase)
+            .Goto(ConnectorRollDuration * Random.value, true);
     }
 
     [ContextMenu("ConnectorElevate")]
     public void ConnectorElevate()
     {
+        Connector.DOKill();
         Connector.localPosition = -Vector3.up * Aspect * 0.5f;
-        Connector.DOLocalMove(Vector3.up * Aspect * 0.5f, ConnecortMoveUpDuration).SetLoops(-1, LoopType.Yoyo).SetEase(ConnectorMoveUpEase);
+        Connector.DOLocalMove(Vector3.up * Aspect * 0.5f, ConnecortMoveUpDuration)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(ConnectorMoveUpEase)
+            .Goto(ConnecortMoveUpDuration*Random.value,true);
     }
 
     [ContextMenu("ConnectorSideMove")]
     public void ConnectorSideMove()
     {
+        Connector.DOKill();
         Connector.localPosition = -Vector3.left * Aspect * 0.5f;
-        Connector.DOLocalMove(Vector3.left * Aspect * 0.5f, ConnecortSideMoveDuration).SetLoops(-1, LoopType.Yoyo).SetEase(ConnectorSideMoveEase);
+        Connector.DOLocalMove(Vector3.left * Aspect * 0.5f, ConnecortSideMoveDuration)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(ConnectorSideMoveEase)
+            .Goto(ConnecortSideMoveDuration * Random.value, true);
     }
 
 
@@ -91,6 +115,7 @@ public class AimGadgetView : MonoBehaviour
         VerticalAlongPath.transform.localScale = Vector3.one;
         VerticalPerpendicularPath.transform.localScale = Vector3.one;
         Horizontal.transform.localScale = Vector3.one;
+        Connector.localRotation = Quaternion.Euler(0, 0, 90);
     }
 
 

@@ -35,6 +35,7 @@ namespace TowerGenerator
         private Dictionary<string, List<Transform>> _induction;
         private LogChecker Log = new LogChecker(LogChecker.Level.Verbose);
         private EventAggregator _chunkEventAggregator;
+        public Connector ExitConnector { get; set; }
 
 
         public virtual void Init() // configure
