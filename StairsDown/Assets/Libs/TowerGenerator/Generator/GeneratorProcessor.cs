@@ -5,7 +5,9 @@ using Assets.Plugins.Alg;
 using GameLib;
 using GameLib.DataStructures;
 using GameLib.Random;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -42,8 +44,10 @@ namespace TowerGenerator
         private ExecutionFrame _frame;
         private Stack<ExecutionFrame> _callStack;
         private Transform _towerRoot;
-#if DEBUG
+
         private State _state;
+#if DEBUG
+        //private State _state;
 #endif
 
         private const int LastSegmentsQueueSize = 4;
@@ -249,7 +253,7 @@ namespace TowerGenerator
         }
 
 
-#if DEBUG
+#if UNITY_EDITOR
         void OnDrawGizmos()
         {
             if (_state == null)

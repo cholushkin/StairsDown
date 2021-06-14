@@ -68,6 +68,7 @@ public class AimGadgetView : MonoBehaviour
     {
         Connector.DOKill();
         Connector.localPosition = Vector3.zero;
+        Connector.localPosition += -Vector3.up * 0.1f;
         Connector.DOLocalMove(Vector3.forward * Aspect * 0.5f, ConnecortMoveForwardDuration)
             .SetLoops(-1, LoopType.Yoyo)
             .SetEase(ConnectorMoveForwardEase)
@@ -79,6 +80,7 @@ public class AimGadgetView : MonoBehaviour
     {
         Connector.DOKill();
         Connector.localPosition = Vector3.zero;
+        Connector.localPosition += -Vector3.up * 1.0f;
         Connector.localRotation = Quaternion.Euler(0, 0, 90 - ConnectorRollAmplitude * 0.5f);
         Connector.DOLocalRotateQuaternion(Quaternion.Euler(0, 0, 90 + ConnectorRollAmplitude * 0.5f), ConnectorRollDuration)
             .SetLoops(-1, LoopType.Yoyo)
@@ -102,6 +104,7 @@ public class AimGadgetView : MonoBehaviour
     {
         Connector.DOKill();
         Connector.localPosition = -Vector3.left * Aspect * 0.5f;
+        Connector.localPosition += -Vector3.up * 0.1f;
         Connector.DOLocalMove(Vector3.left * Aspect * 0.5f, ConnecortSideMoveDuration)
             .SetLoops(-1, LoopType.Yoyo)
             .SetEase(ConnectorSideMoveEase)

@@ -9,7 +9,8 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
     public CardProvider Cards;
     public ChunkControllerBase CurrentChunk;
     public Transform FocusPoint;
-    public  int SpawnedChunksCount { get; private set; }
+    public int SpawnedChunksCount { get; private set; }
+    private CardSpawnPoint _currentCard;
 
     protected override void Awake()
     {
@@ -17,23 +18,27 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
         SpawnedChunksCount = 0;
     }
 
+    public void OnCardTap(int index)
+    {
+        _currentCard = Cards.GetCard(index);
+    }
+
 
     void Update()
     {
-        CardSpawnPoint curCard = null;
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Q))
-            curCard = Cards.GetCard(0);
+            _currentCard = Cards.GetCard(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.W))
-            curCard = Cards.GetCard(1);
+            _currentCard = Cards.GetCard(1);
         else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.A))
-            curCard = Cards.GetCard(2);
+            _currentCard = Cards.GetCard(2);
         else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.S))
-            curCard = Cards.GetCard(3);
+            _currentCard = Cards.GetCard(3);
 
         // first ever stairs chunk
-        if (SpawnedChunksCount == 0 ) 
+        if (SpawnedChunksCount == 0)
         {
-            var newChunkObj = ChunkFactory.CreateChunk(Cards.GetRandomMeta(),0);
+            var newChunkObj = ChunkFactory.CreateChunk(Cards.GetRandomMeta(), 0);
             CurrentChunk = newChunkObj.GetComponent<ChunkControllerBase>();
             SetPosition(CurrentChunk, Vector3.zero);
             CurrentChunk.transform.SetParent(transform);
@@ -47,26 +52,26 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
 
             // make sure spawner is activated
             CurrentChunk.GetComponent<StairsChunkController>().EnableSpawnerGroup(true);
-            var spawner =  CurrentChunk.GetComponentInChildren<FallingObjectSpawner>();
-            spawner.StartSpawning();                                                        
+            var spawner = CurrentChunk.GetComponentInChildren<FallingObjectSpawner>();
+            spawner.StartSpawning();
             SpawnedChunksCount++;
         }
 
 
-        if (curCard != null && AimGadgetController.Instance.StatusActive)
+        if (_currentCard != null && AimGadgetController.Instance.StatusActive)
         {
             // spawn a new chunk
-            var newChunkObj = ChunkFactory.CreateChunk(curCard.Meta, curCard.Seed);
+            var newChunkObj = ChunkFactory.CreateChunk(_currentCard.Meta, _currentCard.Seed);
             var newChunk = newChunkObj.GetComponent<ChunkControllerBase>();
 
             var currentBounds = CurrentChunk.CalculateCurrentAABB(false, true);
             var newBounds = newChunk.GetComponent<ChunkControllerBase>().CalculateCurrentAABB(false, true);
 
             // spawner
-            newChunk.GetComponent<StairsChunkController>().EnableSpawnerGroup(curCard.Spawner);
+            newChunk.GetComponent<StairsChunkController>().EnableSpawnerGroup(_currentCard.Spawner);
 
 
-            newChunk.name = curCard.Meta.ChunkName;
+            newChunk.name = _currentCard.Meta.ChunkName;
             SetPosition(newChunk, currentBounds.center);
             newChunk.transform.SetParent(transform);
 
@@ -96,15 +101,14 @@ public class StairsGeneratorProcessor : Singleton<StairsGeneratorProcessor>
             // aiming
             newChunk.transform.position += AimGadgetController.Instance.GetOffset();
             var z = AimGadgetController.Instance.GetRotation();
-            print(z);
-            newChunk.transform.rotation = Quaternion.Euler(-90- z, 0, 0);
+            newChunk.transform.rotation = Quaternion.Euler(-90 - z, 0, 0);
 
 
 
             CurrentChunk = newChunk;
-            curCard.Next();
+            _currentCard.Next();
             SpawnedChunksCount++;
-            curCard = null;
+            _currentCard = null;
             AimGadgetController.Instance.Hide();
         }
     }

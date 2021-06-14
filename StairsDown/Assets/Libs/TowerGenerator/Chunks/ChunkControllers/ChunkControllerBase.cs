@@ -89,7 +89,6 @@ namespace TowerGenerator
         public void SetConfiguration()
         {
             IPseudoRandomNumberGenerator rnd = RandomHelper.CreateRandomNumberGenerator(Seed);
-            Debug.Log(rnd.GetState());
 
             // enable all parts besides apart from hidden
             transform.ForEachChildrenRecursive(t => t.gameObject.SetActive(t.GetComponent<Hidden>() == null));
