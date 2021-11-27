@@ -68,7 +68,7 @@ namespace TowerGenerator
         }
 
         public bool MakeProjects(
-            TreeNode<Blueprint.Segment> from, Range segCount,
+            TreeNode<Blueprint.Segment> from, GameLib.Random.Range segCount,
             Vector3 offset, Vector3 direction
         )
         {

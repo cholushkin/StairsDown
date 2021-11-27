@@ -42,7 +42,7 @@ namespace TowerGenerator
         }
 
         [Tooltip("Segments amount for one iteration of generator for the trunk")]
-        public Range TrunkSegmentsCount;
+        public GameLib.Random.Range TrunkSegmentsCount;
         public List<PlacementConfig> PlacementConfigs;
 
 
