@@ -1,4 +1,5 @@
 using GameGUI;
+using UnityEngine;
 
 public class DialogPause : GUIScreenBase
 {
@@ -12,5 +13,16 @@ public class DialogPause : GUIScreenBase
     {
         SimpleGui.PopScreen(name);
         StateGameplay.Instance.ExitToMenu();
+    }
+
+    void Update()
+    {
+        if (IsInputEnabled)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                OnBtnResume();
+            }
+        }
     }
 }
