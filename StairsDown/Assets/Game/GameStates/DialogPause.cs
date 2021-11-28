@@ -7,4 +7,10 @@ public class DialogPause : GUIScreenBase
         SimpleGui.PopScreen(name);
         StateGameplay.Instance.OnResume();
     }
+
+    public void OnBtnExit()
+    {
+        SimpleGui.PopScreen(name);
+        StateGameplay.Instance.ExitToMenu();
+    }
 }

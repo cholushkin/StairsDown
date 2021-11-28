@@ -2029,9 +2029,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1107514315}
-        m_TargetAssemblyTypeName: StateGameplay, Assembly-CSharp
-        m_MethodName: ExitToMenu
+      - m_Target: {fileID: 1252509002}
+        m_TargetAssemblyTypeName: DialogPause, Assembly-CSharp
+        m_MethodName: OnBtnExit
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

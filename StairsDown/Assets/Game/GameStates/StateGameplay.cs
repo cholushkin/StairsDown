@@ -14,6 +14,7 @@ public class StateGameplay : AppStateManager.AppState<StateGameplay>
     public void ExitToMenu() 
     {
         AppStateManager.Instance.Start<StateMainMenu>();
+        Time.timeScale = 1;
     }
 
     public void OnPause()
