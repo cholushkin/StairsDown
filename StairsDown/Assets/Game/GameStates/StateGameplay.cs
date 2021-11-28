@@ -1,3 +1,4 @@
+using GameGUI;
 using UnityEngine;
 
 public class StateGameplay : AppStateManager.AppState<StateGameplay>
@@ -7,6 +8,24 @@ public class StateGameplay : AppStateManager.AppState<StateGameplay>
     public GameObject GamePrefab;
 
     private GameObject _game;
+
+    public SimpleGUI GUI;
+
+    public void ExitToMenu() 
+    {
+        AppStateManager.Instance.Start<StateMainMenu>();
+    }
+
+    public void OnPause()
+    {
+        Time.timeScale = 0;
+        GUI.PushScreen("Modal.Pause");
+
+    }
+    public void OnResume()
+    {
+        Time.timeScale = 1;
+    }
 
     public override void AppStateEnter()
     {
